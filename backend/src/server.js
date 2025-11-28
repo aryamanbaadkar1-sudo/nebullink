@@ -11,7 +11,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: process.env.CLIENT_URL || 'http://localhost:3000',
+        origin: process.env.CLIENT_URL || 'https://nebullink.vercel.app',
         methods: ['GET', 'POST']
     }
 });
@@ -44,7 +44,7 @@ app.get('/health', (req, res) => {
 const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
-    console.log(`🚀 NebulaLink server running on http://localhost:${PORT}`);
+    console.log(`🚀 NebulaLink server running on port ${PORT}`);
     console.log(`🔌 Socket.IO ready for connections`);
 });
 
