@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: nebulalink-backend
+    env: node
+    plan: free
+    buildCommand: cd backend && npm install && npx prisma migrate deploy
+    startCommand: cd backend && npm start
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nebulalink-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        fromService:
+          type: web
+          name: nebulalink-frontend
+          property: url
+
+  - type: web
+    name: nebulalink-frontend
+    env: static
+    plan: free
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: nebulalink-backend
+          property: url
+
+databases:
+  - name: nebulalink-db
+    plan: free
+    databaseName: nebulalink
+    user: nebulalink

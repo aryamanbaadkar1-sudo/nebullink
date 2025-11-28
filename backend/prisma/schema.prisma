@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  username      String    @unique
+  passwordHash  String
+  gender        String    // "Male", "Female", "Other"
+  preference    String    // "Male", "Female", "All"
+  nsfwEnabled   Boolean   @default(false)
+  avatarUrl     String?
+  onlineStatus  Boolean   @default(false)
+  lastSeen      DateTime  @default(now())
+  currentRoom   Int?
+  createdAt     DateTime  @default(now())
+  
+  // Relations
+  queueEntries  MatchQueue[]
+  sentMessages  Message[]
+  roomsAsUser1  ChatRoom[] @relation("User1Rooms")
+  roomsAsUser2  ChatRoom[] @relation("User2Rooms")
+}
+
+model MatchQueue {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  gender      String
+  preference  String
+  nsfwEnabled Boolean
+  queuedAt    DateTime @default(now())
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+}
+
+model ChatRoom {
+  id         Int       @id @default(autoincrement())
+  user1Id    Int
+  user2Id    Int
+  nsfwState  Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  active     Boolean   @default(true)
+  
+  user1      User      @relation("User1Rooms", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2      User      @relation("User2Rooms", fields: [user2Id], references: [id], onDelete: Cascade)
+  messages   Message[]
+  
+  @@index([user1Id])
+  @@index([user2Id])
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  roomId    Int
+  senderId  Int
+  timestamp DateTime @default(now())
+  type      String   // "text", "image", "gif", "emoji", "voice", "system"
+  content   String?
+  fileUrl   String?
+  seen      Boolean  @default(false)
+  
+  room      ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  
+  @@index([roomId])
+  @@index([senderId])
+}

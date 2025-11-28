@@ -1,0 +1,16 @@
+{
+    "name": "nebulalink",
+    "version": "1.0.0",
+    "description": "NebulaLink - The Neon Stranger Universe",
+    "scripts": {
+        "setup": "cd backend && npm install && cd ../frontend && npm install",
+        "server": "cd backend && npm run dev",
+        "client": "cd frontend && npm run dev",
+        "dev": "concurrently \"npm run server\" \"npm run client\"",
+        "migrate": "cd backend && npx prisma migrate dev",
+        "studio": "cd backend && npx prisma studio"
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2"
+    }
+}
